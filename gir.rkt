@@ -1,0 +1,21 @@
+#lang racket
+(require net/url)
+
+(displayln (string-join (vector->list (current-command-line-arguments)) " "))
+(define fnam (string-join (vector->list (current-command-line-arguments)) "-"))
+(define srch (string-join (vector->list (current-command-line-arguments)) "+"))
+(set! fnam (string-append fnam ".html"))
+
+(display-to-file "<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href=\"https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch\">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>" fnam #:exists 'replace)
+(display-to-file "\n<br>\n" fnam #:exists 'append)
+(for ([i (in-range 0 420 20)])
+  (define uri (format "https://www.google.com/search?q=~a&safe=off&tbm=isch&ijn=0&start=~a" srch i))
+  (define content (port->string (get-pure-port (string->url uri))))
+  (set! content (string-replace content "<" "\n<"))
+  (define contlines (string-split content "\n"))
+  (set! contlines (filter (lambda (s) (string-contains? s "imgurl")) contlines))
+  (for ([item contlines])
+    (set! item (regexp-replace #rx".*imgurl=" item "<img src=\""))
+    (set! item (regexp-replace #rx"&amp.*" item "\">"))
+    (display-to-file item fnam #:exists 'append)
+    (display-to-file "\n" fnam #:exists 'append)))
