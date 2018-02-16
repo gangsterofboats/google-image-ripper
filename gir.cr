@@ -2,13 +2,15 @@
 require "uri"
 require "http/client"
 
-puts ARGV.join(" ")
+arg = ARGV.join(" ")
+puts arg
 fnam = ARGV.join("-")
 srch = ARGV.join("+")
 fnam += ".html"
 
 fh = File.new fnam, "w"
-fh.puts "<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href=\"https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch\">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>"
+fh.puts "<!DOCTYPE html>\n<html>\n<head>\n<title>#{arg}</title>\n</head>\n<body>"
+fh.puts "<h1>NOTICE: NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href=\"https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch\">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>"
 fh.puts "<br>"
 
 (0..100).step(20) do |i|
@@ -25,4 +27,5 @@ fh.puts "<br>"
   end
 end
 
+fh.puts "</body>\n</html>"
 fh.close
