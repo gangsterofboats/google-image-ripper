@@ -1,6 +1,8 @@
 #!/usr/bin/perl6
 use LWP::Simple;
 
+# Sub to execute the search
+
 sub execute-search($uri)
 {
     my $content = LWP::Simple.new.get($uri, { "User-Agent" => "rmccurdy.com" });
@@ -10,6 +12,8 @@ sub execute-search($uri)
 
     return @contlines;
 }
+
+# Sub to generate the uri to get
 
 sub generate-uri($search, %options, $extended, $start)
 {
@@ -33,7 +37,7 @@ sub generate-uri($search, %options, $extended, $start)
     return $uri;
 }
 
-# amount extended location size time
+# Main function
 
 sub MAIN(Int :a(:$amount) = 8000, Bool :e(:$extended), Str :l(:$location) = '.com', Str :s(:$size), Str :t(:$time), *@search)
 {
@@ -69,7 +73,6 @@ sub MAIN(Int :a(:$amount) = 8000, Bool :e(:$extended), Str :l(:$location) = '.co
         loop (my $i = 0; $i <= %options<amount>; $i += 20)
         {
             my $uri = generate-uri($srch, %options, 0, $i);
-            say "$uri";
             my @contlines = execute-search($uri);
             for @contlines
             {
