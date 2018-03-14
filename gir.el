@@ -1,4 +1,4 @@
-(defun sc/gal (name)
+(defun gb/gir (name)
   (interactive "sName? ")
   (princ name)
   (setq fnam (concat (replace-regexp-in-string " " "-" name) ".html")
