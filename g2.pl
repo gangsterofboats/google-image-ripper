@@ -4,8 +4,6 @@ use warnings;
 use LWP;
 use Getopt::Long;
 
-# https://www.google.co.jp/search?q=福原かれん&safe=off&tbm=isch&ijn=0&start=0
-
 GetOptions(
     'amount|a=i' => \(my $amount = 8000),
     'extended|e' => \my $extended,
