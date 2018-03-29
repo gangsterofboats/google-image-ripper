@@ -1,6 +1,4 @@
 #!/usr/bin/env crystal
-# require 'net/http'
-# require 'addressable/uri'
 require "uri"
 require "http/client"
 require "option_parser"
