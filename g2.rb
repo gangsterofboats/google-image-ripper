@@ -1,4 +1,21 @@
 #!/usr/bin/ruby
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
+
 require 'net/http'
 require 'addressable/uri'
 require 'optparse'
@@ -28,9 +45,9 @@ optparse = OptionParser.new do |opts|
   opts.on("-t", "--time TIME", "Desired time range") do |t|
     options[:time] = t
   end
-  # opts.on("-u", "--uniquify", "Uniquify lines in file result") do
-    # options[:uniquify] = true
-  # end
+  opts.on("-u", "--uniquify", "Uniquify lines in file result") do
+    options[:uniquify] = true
+  end
 end
 
 def execute_search(uri)
@@ -65,7 +82,7 @@ fnam = ARGV.join('-')
 srch = ARGV.join('+')
 fnam += '.html'
 
-fh = open(fnam, 'w')
+fh = File.open(fnam, 'w')
 fh.write('<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>')
 fh.write("\n<br>\n")
 
@@ -92,5 +109,12 @@ else
     end
   end
 end
-
 fh.close
+
+if options[:uniquify]
+  fo = File.readlines(fnam)
+  fo.uniq!
+  File.open(fnam, 'w+') do |fi|
+    fo.each { |item| fi.write("#{item}") }
+  end
+end
