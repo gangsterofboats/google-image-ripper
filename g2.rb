@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 ####################################################################################
 # Google Image Ripper - compile links from Google image searches into an HTML file #
 # Copyright (C) 2018 Michael Wiseman                                               #
