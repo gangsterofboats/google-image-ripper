@@ -1,4 +1,21 @@
-#!/usr/bin/perl6
+#!/usr/bin/env perl6
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
+
 use LWP::Simple;
 
 # Sub to execute the search
@@ -39,9 +56,9 @@ sub generate-uri($search, %options, $extended, $start)
 
 # Main function
 
-sub MAIN(Int :a(:$amount) = 8000, Bool :e(:$extended), Str :l(:$location) = '.com', Str :s(:$size), Str :t(:$time), *@search)
+sub MAIN(Int :a(:$amount) = 8000, Bool :e(:$extended), Str :l(:$location) = '.com', Str :s(:$size), Str :t(:$time), Bool :u(:$uniquify) *@search)
 {
-    my %options = amount => $amount, extended => $extended, location => $location, size => $size, time => $time;
+    my %options = amount => $amount, extended => $extended, location => $location, size => $size, time => $time, uniquify => $uniquify;
     say "@search[]";
     my $filename = @search.join('-');
     my $srch = @search.join('+');
@@ -83,4 +100,11 @@ sub MAIN(Int :a(:$amount) = 8000, Bool :e(:$extended), Str :l(:$location) = '.co
         }
     }
     $fh.close;
+
+    if (%options<uniquify>)
+    {
+        my @f = $filename.IO.lines(:chomp);
+        my @fo = @f.unique;
+        spurt $filename, @fo.join("\n");
+    }
 }
