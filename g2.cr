@@ -1,4 +1,21 @@
 #!/usr/bin/env crystal
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
+
 require "uri"
 require "http/client"
 require "option_parser"
@@ -18,7 +35,8 @@ OptionParser.parse! do |opts|
   opts.on("-s", "--size SIZE", "Desired image size") { |s| options[:size] = s }
 
   opts.on("-t", "--time TIME", "Desired time range") { |t| options[:time] = t }
-  # opts.on("-u", "--uniquify", "Uniquify lines in file result") { options[:uniquify] = true }
+
+  opts.on("-u", "--uniquify", "Uniquify lines in file result") { options[:uniquify] = "true" }
 end
 
 def execute_search(uri)
@@ -85,3 +103,11 @@ end
 
 fh.puts "</body>\n</html>"
 fh.close
+
+if options.has_key?(:uniquify)
+  f = File.read_lines(fnam)
+  f.uniq!
+  ofh = File.open fnam, "w"
+  f.each { |line| ofh.puts line }
+  ofh.close
+end
