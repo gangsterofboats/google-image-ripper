@@ -1,6 +1,22 @@
-#!/bin/sh
+#!/usr/bin/dash
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
 
-while getopts ":a:el:s:t:" opt; do
+while getopts ":a:el:s:t:u" opt; do
     case $opt in
         a)
             amt=${OPTARG}
@@ -17,8 +33,11 @@ while getopts ":a:el:s:t:" opt; do
         t)
             tm=${OPTARG}
             ;;
+        u)
+            uniq=true
+            ;;
         \?)
-            echo "Usage: g2 [-a AMOUNT] [-e] [-l LOCATION] [-s SIZE] [-t TIME] search"
+            echo "Usage: g2 [-a AMOUNT] [-e] [-l LOCATION] [-s SIZE] [-t TIME] [-u] search"
             ;;
     esac
 done
@@ -30,7 +49,7 @@ generate_uri ()
     then
         lct='.com'
     fi
-    
+
     uri="https://www.google$lct/search?q=$srch&safe=off&tbm=isch"
 
     if [ -n "$sz" ] && [ -n "$tm" ]
@@ -80,4 +99,11 @@ else
         curl -s -A 'rmccurdy.com' "$url" | awk '{gsub("<","\n<"); print}' | grep imgurl | sed -e 's/.*imgurl=/<img src="/' -e 's/&amp.*/">/' >> "$fnam".html
         url=$ou
     done
+fi
+
+if [ $uniq ]
+then
+    mv "$fnam".html "$fnam".html.bak
+    cat "$fnam".html.bak | uniq > "$fnam".html
+    rm "$fnam".html.bak
 fi
