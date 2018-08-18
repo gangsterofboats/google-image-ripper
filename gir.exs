@@ -1,4 +1,21 @@
-#!/usr/bin/elixir
+#!/usr/bin/env elixir
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
+
 args = Enum.join(System.argv(), " ")
 IO.puts "#{args}"
 srch = Enum.join(System.argv(), "+")
@@ -26,3 +43,9 @@ for i <- Enum.take_every(0..100, 20) do
 end
 :ssl.stop
 :inets.stop
+
+fs = File.read! fnam
+fo = String.split(fs, "\n")
+fo = Enum.uniq(fo)
+fs = Enum.join(fo, "\n")
+File.write(fnam, fs)
