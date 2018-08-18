@@ -1,17 +1,37 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
+
 use strict;
 use warnings;
-use LWP;
 use Getopt::Long;
+use List::MoreUtils 'uniq';
+use LWP;
+use feature 'say';
 
 GetOptions(
     'amount|a=i' => \(my $amount = 8000),
     'extended|e' => \my $extended,
     'location|l=s' => \(my $location = '.com'),
     'size|s=s' => \my $size,
-    'time|t=s' => \my $time
+    'time|t=s' => \my $time,
+    'uniquify|u' => \my $uniquify
 );
-my %options = ( amount => $amount, extended => $extended, location => $location, size => $size, time => $time );
+my %options = ( amount => $amount, extended => $extended, location => $location, size => $size, time => $time, uniquify => $uniquify );
 
 sub execute_search
 {
@@ -21,10 +41,10 @@ sub execute_search
     $content =~ s/</\n</g;
     my @contlines = split("\n", $content);
     @contlines = grep(/imgurl/, @contlines);
- 
+
     return @contlines;
 }
-    
+
 sub generate_uri
 {
     my $search = shift;
@@ -52,14 +72,14 @@ sub generate_uri
     return $uri;
 }
 
-print "@ARGV\n";
+say "@ARGV";
 my $filename = join("-", @ARGV);
 my $search = join("+", @ARGV);
 $filename .= '.html';
 
 open(my $fh, '>', $filename);
-print $fh '<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>';
-print $fh "\n<br>\n";
+say $fh '<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>';
+say $fh "<br>";
 
 if ($options{extended})
 {
@@ -73,7 +93,7 @@ if ($options{extended})
             {
                 $_ =~ s/.*imgurl=/<img src="/;
                 $_ =~ s/&amp.*/">/;
-                print $fh "$_\n";
+                say $fh "$_";
             }
         }
     }
@@ -88,10 +108,25 @@ else
         {
             $_ =~ s/.*imgurl=/<img src="/;
             $_ =~ s/&amp.*/">/;
-            print $fh "$_\n";
+            say $fh "$_";
         }
     }
-    
-}
 
+}
 close $fh;
+
+if ($options{uniquify})
+{
+    open(my $ifh, '<', $filename);
+    my @f = <$ifh>;
+    close $ifh;
+    chomp(@f);
+    my @fo = uniq @f;
+
+    open(my $ofh, '>', $filename);
+    foreach (@fo)
+    {
+        say $ofh "$_";
+    }
+    close $ofh;
+}
