@@ -1,4 +1,20 @@
-#!/usr/bin/elixir
+#!/usr/bin/env elixir
+####################################################################################
+# Google Image Ripper - compile links from Google image searches into an HTML file #
+# Copyright (C) 2018 Michael Wiseman                                               #
+#                                                                                  #
+# This program is free software: you can redistribute it and/or modify it under    #
+# the terms of the GNU General Public License as published by the Free Software    #
+# Foundation, either version 3 of the License, or (at your option) any later       #
+# version.                                                                         #
+#                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY  #
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A  #
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.        #
+#                                                                                  #
+# You should have received a copy of the GNU General Public License along with     #
+# this program.  If not, see <https://www.gnu.org/licenses/>.                      #
+####################################################################################
 
 # Two function module
 defmodule Gir do
@@ -29,7 +45,7 @@ defmodule Gir do
   end
 end
 
-{options, args, _} = OptionParser.parse(System.argv(), switches: [amount: :integer, extended: :boolean, location: :string, size: :string, time: :string], aliases: [a: :amount, e: :extended, l: :location, s: :size, t: :time])
+{options, args, _} = OptionParser.parse(System.argv(), switches: [amount: :integer, extended: :boolean, location: :string, size: :string, time: :string, uniquify: :boolean], aliases: [a: :amount, e: :extended, l: :location, s: :size, t: :time, u: :uniquify])
 
 # Ensure amount has a value
 amount = cond do
@@ -69,4 +85,12 @@ else
       File.write(filename, "\n", [:append])
     end
   end
+end
+
+if options[:uniquify] do
+  fs = File.read! fnam
+  fo = String.split(fs, "\n")
+  fo = Enum.uniq(fo)
+  fs = Enum.join(fo, "\n")
+  File.write(fnam, fs)
 end
