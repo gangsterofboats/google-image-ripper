@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License along with     #
 # this program.  If not, see <https://www.gnu.org/licenses/>.                      #
 ####################################################################################
-
 use HTML::Parser::XML;
 use HTTP::UserAgent;
+use JSON::Tiny;
 
 say @*ARGS.join(' ');
 my $filename = join("-", @*ARGS) ~ '.html';
@@ -30,20 +30,20 @@ $fh.say('<br>');
 loop (my $i = 0; $i <= 100; $i += 20)
 {
     my $url = "http://www.google.com/search?q=$search&safe=off&tbm=isch&ijn=0&start=$i";
-    my $ua = HTTP::UserAgent.new;
+    my $ua = HTTP::UserAgent.new(:useragent<chrome_linux>);
     my $parser = HTML::Parser::XML.new;
     my $response = $ua.get($url);
     $parser.parse($response.content);
-    my @images = $parser.xmldoc.elements(:class(* eq 'rg_l'), :RECURSE);
+    my @images = $parser.xmldoc.elements(:class(* eq 'rg_meta notranslate'), :RECURSE);
     for @images
     {
-        $_ = $_.Str.subst(/.*imgurl\=/, '<img src="');
-        $_ = $_.Str.subst(/\&amp.*/, '">');
-        $fh.say("$_");
+        my %nosj = from-json($_.contents()[0].Str);
+        my $egami = %nosj{'ou'};
+        $fh.say("<img src=\"$egami\">");
     }
 }
 $fh.close;
 
-# my @f = $filename.IO.lines(:chomp);
-# my @fo = @f.unique;
-# spurt $filename, @fo.join("\n");
+my @f = $filename.IO.lines(:chomp);
+my @fo = @f.unique;
+spurt $filename, @fo.join("\n");
