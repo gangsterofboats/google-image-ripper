@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License along with     #
 # this program.  If not, see <https://www.gnu.org/licenses/>.                      #
 ####################################################################################
-
 use strict;
 use warnings;
-# use List::MoreUtils 'uniq';
+use JSON;
 use LWP;
+use List::MoreUtils 'uniq';
 use XML::LibXML;
 use feature 'say';
 
@@ -31,31 +31,31 @@ open(my $fh, '>', $filename);
 say $fh '<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>';
 say $fh "<br>";
 
-for (my $i = 0; $i <= 100; $i += 20)
+for (my $i = 0; $i <= 400; $i += 20)
 {
     my $url = "https://www.google.com/search?q=$search&safe=off&tbm=isch&ijn=0&start=$i";
     my $ua = LWP::UserAgent->new;
-    my $content = $ua->get($url, 'User-Agent' => 'rmccurdy.com')->content;
-    my $doc = XML::LibXML->load_html(string => $content);
-    my @images = $doc->findnodes('//*[@class="rg_l"]//@href');
+    my $content = $ua->get($url, 'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36')->content;
+    my $doc = XML::LibXML->load_html(string => $content, recover => 2);
+    my @images = $doc->findnodes('//*[contains(@class, "rg_meta")]');
     foreach (@images)
     {
-        $_ =~ s/.*imgurl=/<img src="/;
-        $_ =~ s/&amp.*/">/;
-        say $fh "$_";
+        my %nosj = %{decode_json $_->to_literal()};
+        my $egami = $nosj{'ou'};
+        say $fh "<img src=\"$egami\">";
     }
 }
 close $fh;
 
-# open(my $ifh, '<', $filename);
-# my @f = <$ifh>;
-# close $ifh;
-# chomp(@f);
-# my @fo = uniq @f;
+open(my $ifh, '<', $filename);
+my @f = <$ifh>;
+close $ifh;
+chomp(@f);
+my @fo = uniq @f;
 
-# open(my $ofh, '>', $filename);
-# foreach (@fo)
-# {
-    # say $ofh "$_";
-# }
-# close $ofh;
+open(my $ofh, '>', $filename);
+foreach (@fo)
+{
+    say $ofh "$_";
+}
+close $ofh;
