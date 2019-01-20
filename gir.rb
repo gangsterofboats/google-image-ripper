@@ -15,28 +15,26 @@
 # You should have received a copy of the GNU General Public License along with     #
 # this program.  If not, see <https://www.gnu.org/licenses/>.                      #
 ####################################################################################
-
-require 'net/http'
-require 'uri'
+require 'http'
 
 puts ARGV.join(' ')
-fnam = ARGV.join('-')
+fnam = ARGV.join('-') + '.html'
 srch = ARGV.join('+')
-fnam += '.html'
 
 fh = File.open(fnam, 'w+')
 fh.write('<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>')
 fh.write("\n<br>\n")
 
 (0..400).step(20) do |i|
-  uri = URI.parse("https://www.google.com/search?q=#{srch}&safe=off&tbm=isch&ijn=0&start=#{i}")
-  content = Net::HTTP.get_response(uri).body
+  uri = "https://www.google.com/search?q=#{srch}&safe=off&tbm=isch&ijn=0&start=#{i}"
+  http = HTTP.headers('User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36')
+  content = http.get(uri).to_s
   content.gsub!(/</, "\n<")
   contlines = content.split("\n")
-  contlines = contlines.grep(/imgurl/)
+  contlines = contlines.grep(/"ou"/)
   contlines.each do |item|
-    item.gsub!(/.*imgurl=/, '<img src="')
-    item.gsub!(/&amp.*/, '">')
+    item.gsub!(/.*ou":/, '<img src=')
+    item.gsub!(/,"ow.*/, '>')
     fh.write("#{item}\n")
   end
 end
