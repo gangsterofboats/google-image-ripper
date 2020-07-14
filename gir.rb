@@ -18,30 +18,37 @@
 require 'http'
 
 puts ARGV.join(' ')
-fnam = ARGV.join('-') + '.html'
-srch = ARGV.join('+')
+arg = ARGV.join(' ')
+filename = ARGV.join('-') + '.html'
+search = ARGV.join('+')
 
-fh = File.open(fnam, 'w+')
+fh = File.open(filename, 'w+')
+fh.write("<!DOCTYPE html>\n<html>\n<head>\n<title>#{arg}</title>\n</head>\n<body>\n")
+fh.write("<h1>#{arg}</h1>")
+fh.write("\n<br>\n")
 fh.write('<h1>NOTICE: RMCCURDY.COM IS NOT RESPONSIBLE FOR ANY CONTENT ON THIS PAGE. THIS PAGE IS A RESULT OF IMAGES.GOOGLE.COM INDEXING AND NO CONTENT IS HOSTED ON THIS SITE. PLEASE SEND ANY COPYRIGHT NOTICE INFORMATION TO <a href="https://support.google.com/legal/contact/lr_dmca?dmca=images&product=imagesearch">GOOGLE</a> OR THE OFFENDING WEBSITE</h1>')
 fh.write("\n<br>\n")
 
-(0..400).step(20) do |i|
-  uri = "https://www.google.com/search?q=#{srch}&safe=off&tbm=isch&ijn=0&start=#{i}"
-  http = HTTP.headers('User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36')
+(0..100).each do |i|
+  # uri = "https://www.google.com/search?q=#{search}&safe=off&tbm=isch&ijn=#{i}"
+  uri = "https://www.google.com/search?q=#{search}&safe=off&tbm=isch&tbs=isz:lt,islt:2mp&ijn=#{i}"
+  # uri = "https://www.google.com/search?q=#{search}&safe=off&tbm=isch&tbs=qdr:y,isz:lt,islt:2mp&ijn=#{i}"
+  http = HTTP.headers('User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36')
   content = http.get(uri).to_s
   content.gsub!(/</, "\n<")
   contlines = content.split("\n")
-  contlines = contlines.grep(/"ou"/)
+  contlines = contlines.grep(/^,\[\"http/)
   contlines.each do |item|
-    item.gsub!(/.*ou":/, '<img src=')
-    item.gsub!(/,"ow.*/, '>')
+    item.gsub!(/^,\[/, '<img src=')
+    item.gsub!(/\",.*$/, '">')
     fh.write("#{item}\n")
   end
 end
+fh.write("</body>\n</html>")
 fh.close
 
-fo = File.readlines(fnam)
+fo = File.readlines(filename)
 fo.uniq!
-File.open(fnam, 'w+') do |fi|
+File.open(filename, 'w+') do |fi|
   fo.each { |item| fi.write("#{item}") }
 end
